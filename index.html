@@ -32,11 +32,11 @@
         <label for="qty">Quantity:</label><br>
         <input type="number" id="qty" name="qty" required><br><br>
 
-        <button type="button" onclick="storeData()">Send</button>
+        <button type="button" onclick="sendData()">Send</button>
     </form>
 
     <script>
-        let tempData = {}; // Object to store data temporarily
+        let tempData = []; // Array to store multiple entries temporarily
 
         // Function to format date to YYYYMMDDHHMM format for Reference No
         function generateReferenceNo() {
@@ -63,7 +63,7 @@
             document.getElementById('branch').focus(); // Start cursor at Branch
         }
 
-        // Move focus sequence according to the requested order
+        // Move focus sequence according to the requested order and save data after qty is entered
         document.getElementById('branch').addEventListener('keydown', function (event) {
             if (event.key === 'Enter' || event.key === 'Tab') {
                 event.preventDefault();
@@ -88,12 +88,13 @@
         document.getElementById('qty').addEventListener('keydown', function (event) {
             if (event.key === 'Enter' || event.key === 'Tab') {
                 event.preventDefault();
+                saveData();  // Save data when Qty is entered
                 document.getElementById('location').focus(); // Focus goes back to location
             }
         });
 
-        function storeData() {
-            // Capture form data temporarily
+        // Function to save data to temp storage and clear relevant fields
+        function saveData() {
             const referenceNo = document.getElementById('referenceNo').value;
             const datetime = document.getElementById('datetime').value;
             const branch = document.getElementById('branch').value;
@@ -101,22 +102,37 @@
             const partNo = document.getElementById('partNo').value;
             const qty = document.getElementById('qty').value;
 
-            tempData = {
+            // Store the current entry in the tempData array
+            tempData.push({
                 referenceNo,
                 datetime,
                 branch,
                 location,
                 partNo,
                 qty
-            };
+            });
 
             console.log("Data stored temporarily:", tempData);
-            alert('Data temporarily stored. You can send it later.');
+
+            // Clear Location, Part No, and Qty fields
+            document.getElementById('location').value = '';
+            document.getElementById('partNo').value = '';
+            document.getElementById('qty').value = '';
         }
 
+        // Function to simulate sending the data and clearing temp storage
         function sendData() {
-            // Logic to send data to a server or API can be added here
+            if (tempData.length === 0) {
+                alert("No data to send.");
+                return;
+            }
+
+            // Simulate sending data (Here we just log it, later this can be modified for actual email sending)
             console.log("Data sent:", tempData);
+
+            // Clear the tempData array after sending
+            tempData = [];
+            alert('Data sent and temporary storage cleared.');
         }
     </script>
 </body>
