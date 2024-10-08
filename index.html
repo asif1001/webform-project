@@ -3,19 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Web Form</title>
+    <title>Data Entry Form</title>
 </head>
 <body>
-    <h2>Submit Your Information</h2>
+    <h2>Submit Data</h2>
     <form id="dataForm">
-        <label for="name">Name:</label><br>
-        <input type="text" id="name" name="name"><br><br>
+        <!-- Reference No -->
+        <label for="referenceNo">Reference No:</label><br>
+        <input type="text" id="referenceNo" name="referenceNo" required><br><br>
 
-        <label for="email">Email:</label><br>
-        <input type="email" id="email" name="email"><br><br>
+        <!-- Date and Time -->
+        <label for="datetime">Date and Time:</label><br>
+        <input type="datetime-local" id="datetime" name="datetime" required><br><br>
 
-        <label for="message">Message:</label><br>
-        <textarea id="message" name="message"></textarea><br><br>
+        <!-- Branch -->
+        <label for="branch">Branch:</label><br>
+        <input type="text" id="branch" name="branch" required><br><br>
+
+        <!-- Location -->
+        <label for="location">Location:</label><br>
+        <input type="text" id="location" name="location" required><br><br>
+
+        <!-- Part No -->
+        <label for="partNo">Part No:</label><br>
+        <input type="text" id="partNo" name="partNo" required><br><br>
+
+        <!-- Quantity -->
+        <label for="qty">Quantity:</label><br>
+        <input type="number" id="qty" name="qty" required><br><br>
 
         <button type="button" onclick="storeData()">Send</button>
     </form>
@@ -25,11 +40,21 @@
 
         function storeData() {
             // Capture form data temporarily
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const message = document.getElementById('message').value;
+            const referenceNo = document.getElementById('referenceNo').value;
+            const datetime = document.getElementById('datetime').value;
+            const branch = document.getElementById('branch').value;
+            const location = document.getElementById('location').value;
+            const partNo = document.getElementById('partNo').value;
+            const qty = document.getElementById('qty').value;
 
-            tempData = { name, email, message };
+            tempData = {
+                referenceNo,
+                datetime,
+                branch,
+                location,
+                partNo,
+                qty
+            };
 
             console.log("Data stored temporarily:", tempData);
             alert('Data temporarily stored. You can send it later.');
