@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Entry Form</title>
 </head>
-<body>
+<body onload="populateFields()">
     <h2>Submit Data</h2>
     <form id="dataForm">
         <!-- Reference No -->
         <label for="referenceNo">Reference No:</label><br>
-        <input type="text" id="referenceNo" name="referenceNo" required><br><br>
+        <input type="text" id="referenceNo" name="referenceNo" readonly><br><br>
 
         <!-- Date and Time -->
         <label for="datetime">Date and Time:</label><br>
-        <input type="datetime-local" id="datetime" name="datetime" required><br><br>
+        <input type="datetime-local" id="datetime" name="datetime" readonly><br><br>
 
         <!-- Branch -->
         <label for="branch">Branch:</label><br>
@@ -37,6 +37,30 @@
 
     <script>
         let tempData = {}; // Object to store data temporarily
+
+        // Function to format date to YYYYMMDDHHMM format for Reference No
+        function generateReferenceNo() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+
+            return `${year}${month}${day}${hours}${minutes}`;
+        }
+
+        // Function to get current date and time in ISO format for datetime-local field
+        function getCurrentDateTime() {
+            const now = new Date();
+            return now.toISOString().slice(0, 16); // Returns "YYYY-MM-DDTHH:MM"
+        }
+
+        // Function to populate the Reference No and Date and Time fields when the form loads
+        function populateFields() {
+            document.getElementById('referenceNo').value = generateReferenceNo();
+            document.getElementById('datetime').value = getCurrentDateTime();
+        }
 
         function storeData() {
             // Capture form data temporarily
