@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Entry Form</title>
+    <script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
+    <script type="text/javascript">
+        // Initialize EmailJS with your User ID
+        (function(){
+            emailjs.init("YOUR_USER_ID"); // Replace with your actual EmailJS User ID
+        })();
+    </script>
 </head>
 <body onload="populateFields()">
     <h2>Submit Data</h2>
@@ -120,19 +127,34 @@
             document.getElementById('qty').value = '';
         }
 
-        // Function to simulate sending the data and clearing temp storage
+        // Function to send data via EmailJS
         function sendData() {
             if (tempData.length === 0) {
                 alert("No data to send.");
                 return;
             }
 
-            // Simulate sending data (Here we just log it, later this can be modified for actual email sending)
-            console.log("Data sent:", tempData);
+            // Prepare the email data
+            const emailParams = {
+                referenceNo: tempData[0].referenceNo,
+                datetime: tempData[0].datetime,
+                branch: tempData[0].branch,
+                location: tempData[0].location,
+                partNo: tempData[0].partNo,
+                qty: tempData[0].qty
+            };
 
-            // Clear the tempData array after sending
-            tempData = [];
-            alert('Data sent and temporary storage cleared.');
+            // Send the email using EmailJS
+            emailjs.send("service_s2ro656", "template_xyffshj", emailParams)
+                .then(function(response) {
+                    console.log("SUCCESS!", response.status, response.text);
+                    alert("Data sent via email.");
+                    // Clear tempData after sending
+                    tempData = [];
+                }, function(error) {
+                    console.log("FAILED...", error);
+                    alert("Failed to send data via email.");
+                });
         }
     </script>
 </body>
