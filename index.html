@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Web Form</title>
+</head>
+<body>
+    <h2>Submit Your Information</h2>
+    <form id="dataForm">
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name"><br><br>
+
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email"><br><br>
+
+        <label for="message">Message:</label><br>
+        <textarea id="message" name="message"></textarea><br><br>
+
+        <button type="button" onclick="storeData()">Send</button>
+    </form>
+
+    <script>
+        let tempData = {}; // Object to store data temporarily
+
+        function storeData() {
+            // Capture form data temporarily
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const message = document.getElementById('message').value;
+
+            tempData = { name, email, message };
+
+            console.log("Data stored temporarily:", tempData);
+            alert('Data temporarily stored. You can send it later.');
+        }
+
+        function sendData() {
+            // Logic to send data to a server or API can be added here
+            console.log("Data sent:", tempData);
+        }
+    </script>
+</body>
+</html>
