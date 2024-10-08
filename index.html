@@ -10,11 +10,11 @@
     <form id="dataForm">
         <!-- Reference No -->
         <label for="referenceNo">Reference No:</label><br>
-        <input type="text" id="referenceNo" name="referenceNo" readonly><br><br>
+        <input type="text" id="referenceNo" name="referenceNo" disabled><br><br>
 
         <!-- Date and Time -->
         <label for="datetime">Date and Time:</label><br>
-        <input type="datetime-local" id="datetime" name="datetime" readonly><br><br>
+        <input type="datetime-local" id="datetime" name="datetime" disabled><br><br>
 
         <!-- Branch -->
         <label for="branch">Branch:</label><br>
@@ -60,7 +60,37 @@
         function populateFields() {
             document.getElementById('referenceNo').value = generateReferenceNo();
             document.getElementById('datetime').value = getCurrentDateTime();
+            document.getElementById('branch').focus(); // Start cursor at Branch
         }
+
+        // Move focus sequence according to the requested order
+        document.getElementById('branch').addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' || event.key === 'Tab') {
+                event.preventDefault();
+                document.getElementById('location').focus();
+            }
+        });
+
+        document.getElementById('location').addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' || event.key === 'Tab') {
+                event.preventDefault();
+                document.getElementById('partNo').focus();
+            }
+        });
+
+        document.getElementById('partNo').addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' || event.key === 'Tab') {
+                event.preventDefault();
+                document.getElementById('qty').focus();
+            }
+        });
+
+        document.getElementById('qty').addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' || event.key === 'Tab') {
+                event.preventDefault();
+                document.getElementById('location').focus(); // Focus goes back to location
+            }
+        });
 
         function storeData() {
             // Capture form data temporarily
