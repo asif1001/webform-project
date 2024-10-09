@@ -3,25 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Entry Form</title>
-    <script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
-    <script type="text/javascript">
-        // Initialize EmailJS with your User ID
-        (function(){
-            emailjs.init("YOUR_USER_ID"); // Replace with your actual EmailJS User ID
-        })();
-    </script>
+    <title>Data Entry Form with Formspree</title>
 </head>
-<body onload="populateFields()">
+<body>
     <h2>Submit Data</h2>
-    <form id="dataForm">
+    <!-- Use your Formspree endpoint -->
+    <form action="https://formspree.io/f/mldervly" method="POST">
         <!-- Reference No -->
         <label for="referenceNo">Reference No:</label><br>
-        <input type="text" id="referenceNo" name="referenceNo" disabled><br><br>
+        <input type="text" id="referenceNo" name="referenceNo" readonly><br><br>
 
         <!-- Date and Time -->
         <label for="datetime">Date and Time:</label><br>
-        <input type="datetime-local" id="datetime" name="datetime" disabled><br><br>
+        <input type="datetime-local" id="datetime" name="datetime" readonly><br><br>
 
         <!-- Branch -->
         <label for="branch">Branch:</label><br>
@@ -39,122 +33,30 @@
         <label for="qty">Quantity:</label><br>
         <input type="number" id="qty" name="qty" required><br><br>
 
-        <button type="button" onclick="sendData()">Send</button>
+        <!-- Submit the form -->
+        <button type="submit">Send</button>
     </form>
 
     <script>
-        let tempData = []; // Array to store multiple entries temporarily
+        // Auto-generate reference number and date on form load
+        window.onload = function() {
+            document.getElementById('referenceNo').value = generateReferenceNo();
+            document.getElementById('datetime').value = getCurrentDateTime();
+        };
 
-        // Function to format date to YYYYMMDDHHMM format for Reference No
         function generateReferenceNo() {
             const now = new Date();
             const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+            const month = String(now.getMonth() + 1).padStart(2, '0');
             const day = String(now.getDate()).padStart(2, '0');
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
-
             return `${year}${month}${day}${hours}${minutes}`;
         }
 
-        // Function to get current date and time in ISO format for datetime-local field
         function getCurrentDateTime() {
             const now = new Date();
-            return now.toISOString().slice(0, 16); // Returns "YYYY-MM-DDTHH:MM"
-        }
-
-        // Function to populate the Reference No and Date and Time fields when the form loads
-        function populateFields() {
-            document.getElementById('referenceNo').value = generateReferenceNo();
-            document.getElementById('datetime').value = getCurrentDateTime();
-            document.getElementById('branch').focus(); // Start cursor at Branch
-        }
-
-        // Move focus sequence according to the requested order and save data after qty is entered
-        document.getElementById('branch').addEventListener('keydown', function (event) {
-            if (event.key === 'Enter' || event.key === 'Tab') {
-                event.preventDefault();
-                document.getElementById('location').focus();
-            }
-        });
-
-        document.getElementById('location').addEventListener('keydown', function (event) {
-            if (event.key === 'Enter' || event.key === 'Tab') {
-                event.preventDefault();
-                document.getElementById('partNo').focus();
-            }
-        });
-
-        document.getElementById('partNo').addEventListener('keydown', function (event) {
-            if (event.key === 'Enter' || event.key === 'Tab') {
-                event.preventDefault();
-                document.getElementById('qty').focus();
-            }
-        });
-
-        document.getElementById('qty').addEventListener('keydown', function (event) {
-            if (event.key === 'Enter' || event.key === 'Tab') {
-                event.preventDefault();
-                saveData();  // Save data when Qty is entered
-                document.getElementById('location').focus(); // Focus goes back to location
-            }
-        });
-
-        // Function to save data to temp storage and clear relevant fields
-        function saveData() {
-            const referenceNo = document.getElementById('referenceNo').value;
-            const datetime = document.getElementById('datetime').value;
-            const branch = document.getElementById('branch').value;
-            const location = document.getElementById('location').value;
-            const partNo = document.getElementById('partNo').value;
-            const qty = document.getElementById('qty').value;
-
-            // Store the current entry in the tempData array
-            tempData.push({
-                referenceNo,
-                datetime,
-                branch,
-                location,
-                partNo,
-                qty
-            });
-
-            console.log("Data stored temporarily:", tempData);
-
-            // Clear Location, Part No, and Qty fields
-            document.getElementById('location').value = '';
-            document.getElementById('partNo').value = '';
-            document.getElementById('qty').value = '';
-        }
-
-        // Function to send data via EmailJS
-        function sendData() {
-            if (tempData.length === 0) {
-                alert("No data to send.");
-                return;
-            }
-
-            // Prepare the email data
-            const emailParams = {
-                referenceNo: tempData[0].referenceNo,
-                datetime: tempData[0].datetime,
-                branch: tempData[0].branch,
-                location: tempData[0].location,
-                partNo: tempData[0].partNo,
-                qty: tempData[0].qty
-            };
-
-            // Send the email using EmailJS
-            emailjs.send("service_s2ro656", "template_xyffshj", emailParams)
-                .then(function(response) {
-                    console.log("SUCCESS!", response.status, response.text);
-                    alert("Data sent via email.");
-                    // Clear tempData after sending
-                    tempData = [];
-                }, function(error) {
-                    console.log("FAILED...", error);
-                    alert("Failed to send data via email.");
-                });
+            return now.toISOString().slice(0, 16);
         }
     </script>
 </body>
