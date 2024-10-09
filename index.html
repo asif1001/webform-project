@@ -8,7 +8,7 @@
 <body>
     <h2>Submit Data</h2>
     <!-- Use your Formspree endpoint -->
-    <form action="https://formspree.io/f/mldervly" method="POST">
+    <form id="dataForm" action="https://formspree.io/f/mldervly" method="POST">
         <!-- Reference No -->
         <label for="referenceNo">Reference No:</label><br>
         <input type="text" id="referenceNo" name="referenceNo" readonly><br><br>
@@ -38,10 +38,13 @@
     </form>
 
     <script>
+        let savedEntries = []; // Store multiple entries
+
         // Auto-generate reference number and date on form load
         window.onload = function() {
             document.getElementById('referenceNo').value = generateReferenceNo();
             document.getElementById('datetime').value = getCurrentDateTime();
+            document.getElementById('branch').focus(); // Start cursor at Branch
         };
 
         function generateReferenceNo() {
@@ -56,8 +59,81 @@
 
         function getCurrentDateTime() {
             const now = new Date();
-            return now.toISOString().slice(0, 16);
+            return now.toISOString().slice(0, 16); // ISO format for datetime-local
         }
+
+        // Handle tab sequence and saving the data
+        document.getElementById('branch').addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' || event.key === 'Tab') {
+                event.preventDefault();
+                document.getElementById('location').focus();
+            }
+        });
+
+        document.getElementById('location').addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' || event.key === 'Tab') {
+                event.preventDefault();
+                document.getElementById('partNo').focus();
+            }
+        });
+
+        document.getElementById('partNo').addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' || event.key === 'Tab') {
+                event.preventDefault();
+                document.getElementById('qty').focus();
+            }
+        });
+
+        document.getElementById('qty').addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' || event.key === 'Tab') {
+                event.preventDefault();
+                saveEntry();  // Save data when Qty is entered
+                document.getElementById('location').focus(); // Focus goes back to Location
+            }
+        });
+
+        // Save data entry and clear fields
+        function saveEntry() {
+            const branch = document.getElementById('branch').value;
+            const location = document.getElementById('location').value;
+            const partNo = document.getElementById('partNo').value;
+            const qty = document.getElementById('qty').value;
+
+            // Store the entry
+            savedEntries.push({ branch, location, partNo, qty });
+            console.log("Data stored:", savedEntries);
+
+            // Clear Location, Part No, and Qty fields
+            document.getElementById('location').value = '';
+            document.getElementById('partNo').value = '';
+            document.getElementById('qty').value = '';
+        }
+
+        // Handle form submission
+        document.getElementById('dataForm').addEventListener('submit', function (event) {
+            if (savedEntries.length === 0) {
+                alert("No data to send. Please enter data.");
+                event.preventDefault();
+                return;
+            }
+
+            // Create the email body as a table
+            let tableHTML = '<table border="1" cellpadding="5" cellspacing="0"><thead><tr><th>Branch</th><th>Location</th><th>Part No</th><th>Quantity</th></tr></thead><tbody>';
+            savedEntries.forEach(entry => {
+                tableHTML += `<tr><td>${entry.branch}</td><td>${entry.location}</td><td>${entry.partNo}</td><td>${entry.qty}</td></tr>`;
+            });
+            tableHTML += '</tbody></table>';
+
+            // Add the table to the form as a hidden field for email submission
+            const hiddenField = document.createElement("input");
+            hiddenField.type = "hidden";
+            hiddenField.name = "report";
+            hiddenField.value = tableHTML;
+            this.appendChild(hiddenField);
+
+            // Clear the saved entries after submission
+            savedEntries = [];
+        });
     </script>
 </body>
 </html>
