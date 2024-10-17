@@ -3,42 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Entry Form with Formspree</title>
+    <title>Data Entry Form with Google Sheets</title>
 </head>
 <body>
     <h2>Submit Data</h2>
-    <!-- Use your Formspree endpoint -->
-    <form id="dataForm" action="https://formspree.io/f/mldervly" method="POST">
-        <!-- Reference No -->
+    <form id="dataForm">
         <label for="referenceNo">Reference No:</label><br>
         <input type="text" id="referenceNo" name="referenceNo" readonly><br><br>
 
-        <!-- Date and Time -->
         <label for="datetime">Date and Time:</label><br>
         <input type="datetime-local" id="datetime" name="datetime" readonly><br><br>
 
-        <!-- Branch -->
         <label for="branch">Branch:</label><br>
         <input type="text" id="branch" name="branch" required><br><br>
 
-        <!-- Location -->
         <label for="location">Location:</label><br>
         <input type="text" id="location" name="location" required><br><br>
 
-        <!-- Part No -->
         <label for="partNo">Part No:</label><br>
         <input type="text" id="partNo" name="partNo" required><br><br>
 
-        <!-- Quantity -->
         <label for="qty">Quantity:</label><br>
         <input type="number" id="qty" name="qty" required><br><br>
 
-        <!-- Submit the form -->
         <button type="submit">Send</button>
     </form>
 
     <script>
-        let savedEntries = []; // Store multiple entries
+        document.getElementById('dataForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Get form values
+            const referenceNo = document.getElementById('referenceNo').value;
+            const datetime = document.getElementById('datetime').value;
+            const branch = document.getElementById('branch').value;
+            const location = document.getElementById('location').value;
+            const partNo = document.getElementById('partNo').value;
+            const qty = document.getElementById('qty').value;
+
+            // Google Apps Script Web App URL
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbwcQ2bxuY8L5qwlCPz-JjOVSgt1qT7kVFkGV-YVWyI_NBzrHZkoJ7t1VK3Ziqypvs9LYw/exec';
+
+            // Send form data via POST request to Google Apps Script
+            fetch(scriptURL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    'referenceNo': referenceNo,
+                    'datetime': datetime,
+                    'branch': branch,
+                    'location': location,
+                    'partNo': partNo,
+                    'qty': qty
+                })
+            })
+            .then(response => response.text())
+            .then(result => {
+                alert('Form submitted successfully: ' + result);
+            })
+            .catch(error => console.error('Error!', error.message));
+        });
 
         // Auto-generate reference number and date on form load
         window.onload = function() {
@@ -61,79 +85,6 @@
             const now = new Date();
             return now.toISOString().slice(0, 16); // ISO format for datetime-local
         }
-
-        // Handle tab sequence and saving the data
-        document.getElementById('branch').addEventListener('keydown', function (event) {
-            if (event.key === 'Enter' || event.key === 'Tab') {
-                event.preventDefault();
-                document.getElementById('location').focus();
-            }
-        });
-
-        document.getElementById('location').addEventListener('keydown', function (event) {
-            if (event.key === 'Enter' || event.key === 'Tab') {
-                event.preventDefault();
-                document.getElementById('partNo').focus();
-            }
-        });
-
-        document.getElementById('partNo').addEventListener('keydown', function (event) {
-            if (event.key === 'Enter' || event.key === 'Tab') {
-                event.preventDefault();
-                document.getElementById('qty').focus();
-            }
-        });
-
-        document.getElementById('qty').addEventListener('keydown', function (event) {
-            if (event.key === 'Enter' || event.key === 'Tab') {
-                event.preventDefault();
-                saveEntry();  // Save data when Qty is entered
-                document.getElementById('location').focus(); // Focus goes back to Location
-            }
-        });
-
-        // Save data entry and clear fields
-        function saveEntry() {
-            const branch = document.getElementById('branch').value;
-            const location = document.getElementById('location').value;
-            const partNo = document.getElementById('partNo').value;
-            const qty = document.getElementById('qty').value;
-
-            // Store the entry
-            savedEntries.push({ branch, location, partNo, qty });
-            console.log("Data stored:", savedEntries);
-
-            // Clear Location, Part No, and Qty fields
-            document.getElementById('location').value = '';
-            document.getElementById('partNo').value = '';
-            document.getElementById('qty').value = '';
-        }
-
-        // Handle form submission
-        document.getElementById('dataForm').addEventListener('submit', function (event) {
-            if (savedEntries.length === 0) {
-                alert("No data to send. Please enter data.");
-                event.preventDefault();
-                return;
-            }
-
-            // Create the email body as a table
-            let tableHTML = '<table border="1" cellpadding="5" cellspacing="0"><thead><tr><th>Branch</th><th>Location</th><th>Part No</th><th>Quantity</th></tr></thead><tbody>';
-            savedEntries.forEach(entry => {
-                tableHTML += `<tr><td>${entry.branch}</td><td>${entry.location}</td><td>${entry.partNo}</td><td>${entry.qty}</td></tr>`;
-            });
-            tableHTML += '</tbody></table>';
-
-            // Add the table to the form as a hidden field for email submission
-            const hiddenField = document.createElement("input");
-            hiddenField.type = "hidden";
-            hiddenField.name = "report";
-            hiddenField.value = tableHTML;
-            this.appendChild(hiddenField);
-
-            // Clear the saved entries after submission
-            savedEntries = [];
-        });
     </script>
 </body>
 </html>
