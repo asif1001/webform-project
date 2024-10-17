@@ -30,39 +30,7 @@
     </form>
 
     <script>
-        document.getElementById('dataForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the default form submission
-
-            // Get form values
-            const referenceNo = document.getElementById('referenceNo').value;
-            const datetime = document.getElementById('datetime').value;
-            const branch = document.getElementById('branch').value;
-            const location = document.getElementById('location').value;
-            const partNo = document.getElementById('partNo').value;
-            const qty = document.getElementById('qty').value;
-
-            // Google Apps Script Web App URL
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbwcQ2bxuY8L5qwlCPz-JjOVSgt1qT7kVFkGV-YVWyI_NBzrHZkoJ7t1VK3Ziqypvs9LYw/exec';
-
-            // Send form data via POST request to Google Apps Script
-            fetch(scriptURL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({
-                    'referenceNo': referenceNo,
-                    'datetime': datetime,
-                    'branch': branch,
-                    'location': location,
-                    'partNo': partNo,
-                    'qty': qty
-                })
-            })
-            .then(response => response.text())
-            .then(result => {
-                alert('Form submitted successfully: ' + result);
-            })
-            .catch(error => console.error('Error!', error.message));
-        });
+        let savedEntries = []; // Store multiple entries
 
         // Auto-generate reference number and date on form load
         window.onload = function() {
@@ -85,6 +53,88 @@
             const now = new Date();
             return now.toISOString().slice(0, 16); // ISO format for datetime-local
         }
+
+        // Handle tab sequence and saving the data
+        document.getElementById('branch').addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' || event.key === 'Tab') {
+                event.preventDefault();
+                document.getElementById('location').focus();
+            }
+        });
+
+        document.getElementById('location').addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' || event.key === 'Tab') {
+                event.preventDefault();
+                document.getElementById('partNo').focus();
+            }
+        });
+
+        document.getElementById('partNo').addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' || event.key === 'Tab') {
+                event.preventDefault();
+                document.getElementById('qty').focus();
+            }
+        });
+
+        document.getElementById('qty').addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' || event.key === 'Tab') {
+                event.preventDefault();
+                saveEntry();  // Save data when Qty is entered
+                document.getElementById('location').focus(); // Focus goes back to Location
+            }
+        });
+
+        // Save data entry and clear fields
+        function saveEntry() {
+            const branch = document.getElementById('branch').value;
+            const location = document.getElementById('location').value;
+            const partNo = document.getElementById('partNo').value;
+            const qty = document.getElementById('qty').value;
+
+            // Store the entry
+            savedEntries.push({ branch, location, partNo, qty });
+            console.log("Data stored:", savedEntries);
+
+            // Clear Location, Part No, and Qty fields
+            document.getElementById('location').value = '';
+            document.getElementById('partNo').value = '';
+            document.getElementById('qty').value = '';
+        }
+
+        // Handle form submission and data sending
+        document.getElementById('dataForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            // Google Apps Script Web App URL
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbwcQ2bxuY8L5qwlCPz-JjOVSgt1qT7kVFkGV-YVWyI_NBzrHZkoJ7t1VK3Ziqypvs9LYw/exec';
+
+            // Create the email body as a table
+            const referenceNo = document.getElementById('referenceNo').value;
+            const datetime = document.getElementById('datetime').value;
+            const branch = document.getElementById('branch').value;
+            const location = document.getElementById('location').value;
+            const partNo = document.getElementById('partNo').value;
+            const qty = document.getElementById('qty').value;
+
+            // Send form data via POST request to Google Apps Script
+            fetch(scriptURL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    'referenceNo': referenceNo,
+                    'datetime': datetime,
+                    'branch': branch,
+                    'location': location,
+                    'partNo': partNo,
+                    'qty': qty
+                })
+            })
+            .then(response => response.text())
+            .then(result => {
+                alert('Form submitted successfully: ' + result);
+            })
+            .catch(error => console.error('Error!', error.message));
+        });
     </script>
 </body>
 </html>
