@@ -25,8 +25,6 @@
 
         <label for="qty">Quantity:</label><br>
         <input type="number" id="qty" name="qty" required><br><br>
-
-        <button type="submit">Send</button>
     </form>
 
     <script>
@@ -79,8 +77,7 @@
         document.getElementById('qty').addEventListener('keydown', function (event) {
             if (event.key === 'Enter' || event.key === 'Tab') {
                 event.preventDefault();
-                saveEntry();  // Save data when Qty is entered
-                document.getElementById('location').focus(); // Focus goes back to Location
+                saveEntry();  // Save data when Qty is entered and move back to Location
             }
         });
 
@@ -95,26 +92,26 @@
             savedEntries.push({ branch, location, partNo, qty });
             console.log("Data stored:", savedEntries);
 
+            // Automatically submit data to Google Sheets
+            submitDataToGoogleSheets(branch, location, partNo, qty);
+
             // Clear Location, Part No, and Qty fields
             document.getElementById('location').value = '';
             document.getElementById('partNo').value = '';
             document.getElementById('qty').value = '';
+
+            // Set focus back to the Location field for the next entry
+            document.getElementById('location').focus();
         }
 
-        // Handle form submission and data sending
-        document.getElementById('dataForm').addEventListener('submit', function (event) {
-            event.preventDefault();
-
+        // Function to send data to Google Sheets without a popup
+        function submitDataToGoogleSheets(branch, location, partNo, qty) {
             // Google Apps Script Web App URL
             const scriptURL = 'https://script.google.com/macros/s/AKfycbwcQ2bxuY8L5qwlCPz-JjOVSgt1qT7kVFkGV-YVWyI_NBzrHZkoJ7t1VK3Ziqypvs9LYw/exec';
 
-            // Create the email body as a table
+            // Reference number and date-time from the form
             const referenceNo = document.getElementById('referenceNo').value;
             const datetime = document.getElementById('datetime').value;
-            const branch = document.getElementById('branch').value;
-            const location = document.getElementById('location').value;
-            const partNo = document.getElementById('partNo').value;
-            const qty = document.getElementById('qty').value;
 
             // Send form data via POST request to Google Apps Script
             fetch(scriptURL, {
@@ -131,10 +128,11 @@
             })
             .then(response => response.text())
             .then(result => {
-                alert('Form submitted successfully: ' + result);
+                console.log('Data sent successfully: ' + result);
+                // No alert or user interruption here
             })
             .catch(error => console.error('Error!', error.message));
-        });
+        }
     </script>
 </body>
 </html>
