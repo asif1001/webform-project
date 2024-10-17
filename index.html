@@ -4,33 +4,113 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Entry Form with Google Sheets</title>
+    <style>
+        /* General styling for form layout */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        /* Styling for the form container */
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px; /* Max width for larger screens */
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0 20px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Media query for mobile devices */
+        @media only screen and (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            form {
+                width: 100%;
+                max-width: none;
+                box-shadow: none;
+                padding: 10px;
+            }
+
+            input, button {
+                font-size: 16px;
+                padding: 12px;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
 </head>
 <body>
     <h2>Submit Data</h2>
     <form id="dataForm">
-        <label for="referenceNo">Reference No:</label><br>
-        <input type="text" id="referenceNo" name="referenceNo" readonly><br><br>
+        <label for="referenceNo">Reference No:</label>
+        <input type="text" id="referenceNo" name="referenceNo" readonly>
 
-        <label for="datetime">Date and Time:</label><br>
-        <input type="datetime-local" id="datetime" name="datetime" readonly><br><br>
+        <label for="datetime">Date and Time:</label>
+        <input type="datetime-local" id="datetime" name="datetime" readonly>
 
-        <label for="branch">Branch:</label><br>
-        <input type="text" id="branch" name="branch" required><br><br>
+        <label for="branch">Branch:</label>
+        <input type="text" id="branch" name="branch" required>
 
-        <label for="location">Location:</label><br>
-        <input type="text" id="location" name="location" required><br><br>
+        <label for="location">Location:</label>
+        <input type="text" id="location" name="location" required>
 
-        <label for="partNo">Part No:</label><br>
-        <input type="text" id="partNo" name="partNo" required><br><br>
+        <label for="partNo">Part No:</label>
+        <input type="text" id="partNo" name="partNo" required>
 
-        <label for="qty">Quantity:</label><br>
-        <input type="number" id="qty" name="qty" required><br><br>
+        <label for="qty">Quantity:</label>
+        <input type="number" id="qty" name="qty" required>
+
+        <button type="submit">Send</button>
     </form>
 
     <script>
-        let savedEntries = []; // Store multiple entries
+        let savedEntries = [];
 
-        // Auto-generate reference number and date on form load
         window.onload = function() {
             document.getElementById('referenceNo').value = generateReferenceNo();
             document.getElementById('datetime').value = getCurrentDateTime();
@@ -52,7 +132,6 @@
             return now.toISOString().slice(0, 16); // ISO format for datetime-local
         }
 
-        // Handle tab sequence and saving the data
         document.getElementById('branch').addEventListener('keydown', function (event) {
             if (event.key === 'Enter' || event.key === 'Tab') {
                 event.preventDefault();
@@ -81,39 +160,28 @@
             }
         });
 
-        // Save data entry and clear fields
         function saveEntry() {
             const branch = document.getElementById('branch').value;
             const location = document.getElementById('location').value;
             const partNo = document.getElementById('partNo').value;
             const qty = document.getElementById('qty').value;
 
-            // Store the entry
             savedEntries.push({ branch, location, partNo, qty });
-            console.log("Data stored:", savedEntries);
-
-            // Automatically submit data to Google Sheets
             submitDataToGoogleSheets(branch, location, partNo, qty);
 
-            // Clear Location, Part No, and Qty fields
             document.getElementById('location').value = '';
             document.getElementById('partNo').value = '';
             document.getElementById('qty').value = '';
 
-            // Set focus back to the Location field for the next entry
             document.getElementById('location').focus();
         }
 
-        // Function to send data to Google Sheets without a popup
         function submitDataToGoogleSheets(branch, location, partNo, qty) {
-            // Google Apps Script Web App URL
             const scriptURL = 'https://script.google.com/macros/s/AKfycbwcQ2bxuY8L5qwlCPz-JjOVSgt1qT7kVFkGV-YVWyI_NBzrHZkoJ7t1VK3Ziqypvs9LYw/exec';
 
-            // Reference number and date-time from the form
             const referenceNo = document.getElementById('referenceNo').value;
             const datetime = document.getElementById('datetime').value;
 
-            // Send form data via POST request to Google Apps Script
             fetch(scriptURL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -129,7 +197,6 @@
             .then(response => response.text())
             .then(result => {
                 console.log('Data sent successfully: ' + result);
-                // No alert or user interruption here
             })
             .catch(error => console.error('Error!', error.message));
         }
